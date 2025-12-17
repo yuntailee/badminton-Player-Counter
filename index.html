@@ -33,7 +33,7 @@
         height: auto;
         display: flex;
         flex-direction: column;
-        overflow: visible;
+        overflow-x: hidden;
         position: relative;
       }
 
@@ -175,7 +175,8 @@
         position: relative;
         width: 100%;
         flex-shrink: 0;
-        max-height: 50vh;
+        max-height: 40vh;
+        overflow: visible;
       }
 
       .match-history-sidebar {
@@ -206,12 +207,13 @@
         display: flex;
         justify-content: center;
         background: #ffffff;
-        padding: 8px;
+        padding: 8px clamp(20px, 25vw, 360px);
         border: 2px solid black;
         border-radius: 10px;
-        flex: 1;
+        flex-shrink: 0;
         position: relative;
         margin-left: 290px;
+        min-height: 350px;
       }
 
       .court {
@@ -220,8 +222,8 @@
         grid-template-rows: repeat(22, 1fr);
         background: #4ba26e;
         border: 3px solid #4ba26e;
-        width: 180px;
-        height: 396px;
+        width: 150px;
+        height: 330px;
         margin: 0 auto;
         padding: 2px;
         position: relative;
@@ -360,28 +362,31 @@
 
       .counter-section {
         display: flex;
-        justify-content: space-around;
+        justify-content: flex-start;
         gap: 10px;
         flex-wrap: wrap;
         flex-shrink: 0;
-        align-items: center;
+        align-items: flex-end;
         position: relative;
         min-height: 200px;
+        margin-bottom: 60px;
+        margin-right: 200px;
       }
 
       .counter-box {
         background: linear-gradient(135deg, #80d3ff 0%, #4b81a2 100%);
         border-radius: 10px;
-        padding: 12px;
+        padding: 8px;
         min-width: 150px;
+        max-width: 180px;
         text-align: center;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         transition:
           transform 0.3s ease,
           background 0.6s ease;
-        flex: 1;
-        max-width: 300px;
+        flex: 0 0 auto;
         position: relative;
+        margin-bottom: 20px;
       }
 
       .counter-box.left {
@@ -398,16 +403,16 @@
 
       .counter-label {
         color: white;
-        font-size: 0.9em;
+        font-size: 0.75em;
         font-weight: bold;
-        margin-bottom: 8px;
+        margin-bottom: 4px;
       }
 
       .counter-players {
         color: rgba(255, 255, 255, 0.9);
-        font-size: 0.75em;
-        margin-bottom: 5px;
-        min-height: 20px;
+        font-size: 0.65em;
+        margin-bottom: 3px;
+        min-height: 16px;
       }
 
       .player-name-tag {
@@ -438,9 +443,9 @@
 
       .counter-value {
         color: white;
-        font-size: 2em;
+        font-size: 1.5em;
         font-weight: bold;
-        margin-bottom: 10px;
+        margin-bottom: 6px;
         cursor: pointer;
         padding: 5px;
         border-radius: 5px;
@@ -599,7 +604,7 @@
 
       .counter-buttons {
         display: flex;
-        gap: 5px;
+        gap: 4px;
         justify-content: center;
       }
 
@@ -607,13 +612,13 @@
         background: white;
         color: #667eea;
         border: none;
-        padding: 6px 12px;
+        padding: 4px 8px;
         border-radius: 6px;
-        font-size: 0.85em;
+        font-size: 0.75em;
         font-weight: bold;
         cursor: pointer;
         transition: all 0.3s ease;
-        min-width: 60px;
+        min-width: 45px;
       }
 
       .btn:hover {
@@ -635,12 +640,16 @@
       }
 
       .reset-all {
-        text-align: center;
-        margin-top: 8px;
+        position: absolute;
+        bottom: 15px;
+        right: 15px;
+        margin: 0;
+        padding: 0;
         flex-shrink: 0;
         display: flex;
-        gap: 10px;
-        justify-content: center;
+        gap: 5px;
+        justify-content: flex-end;
+        flex-wrap: wrap;
       }
 
       .reset-all-btn {
@@ -658,6 +667,95 @@
       .reset-all-btn:hover {
         background: #ff5252;
         transform: scale(1.05);
+      }
+
+      @media (min-width: 769px) and (max-width: 1024px) {
+        .container {
+          padding: 12px;
+          position: relative;
+          overflow-x: hidden;
+        }
+
+        .court {
+          height: 374px;
+        }
+
+        .court-container {
+          margin-left: 240px;
+          min-height: 390px;
+          padding: 0px 20vw;
+        }
+
+        .match-history-sidebar {
+          width: 230px;
+          max-height: 450px;
+          font-size: 0.85em;
+        }
+
+        .counter-section {
+          flex-direction: row;
+          gap: 10px;
+          margin-bottom: 60px;
+          margin-right: 200px;
+          justify-content: flex-start;
+          align-items: flex-end;
+          flex-wrap: wrap;
+        }
+
+        .counter-box {
+          max-width: 180px;
+          min-width: 150px;
+          padding: 8px;
+          flex: 0 0 auto;
+          margin-bottom: 20px;
+        }
+
+        .counter-label {
+          font-size: 0.75em;
+          margin-bottom: 4px;
+        }
+
+        .counter-players {
+          font-size: 0.65em;
+          margin-bottom: 3px;
+          min-height: 16px;
+        }
+
+        .counter-value {
+          font-size: 1.5em;
+          margin-bottom: 6px;
+        }
+
+        .counter-buttons {
+          gap: 4px;
+        }
+
+        .btn {
+          padding: 4px 8px;
+          font-size: 0.75em;
+          min-width: 45px;
+        }
+
+        .court-wrapper {
+          max-height: 45vh;
+          margin-bottom: 10px;
+        }
+
+        .reset-all {
+          position: absolute;
+          bottom: 12px;
+          right: 12px;
+          margin: 0;
+          padding: 0;
+          justify-content: flex-end;
+          flex-wrap: wrap;
+          gap: 5px;
+        }
+
+        .reset-all-btn {
+          padding: 6px 12px;
+          font-size: 0.8em;
+        }
       }
 
       @media (max-width: 768px) {
@@ -709,12 +807,14 @@
           flex-direction: column;
           gap: 5px;
           margin-bottom: 5px;
+          max-height: none;
         }
 
         .court-container {
           margin-left: 0;
           width: 100%;
           padding: 5px;
+          min-height: auto;
         }
 
         .match-history-sidebar {
@@ -735,8 +835,8 @@
 
         .court {
           width: 100%;
-          max-width: 250px;
-          height: 550px;
+          max-width: 160px;
+          height: 352px;
           margin: 0 auto;
         }
 
@@ -744,6 +844,7 @@
           flex-direction: column;
           gap: 8px;
           position: relative;
+          margin-bottom: 10px;
         }
 
         .swap-button {
@@ -789,6 +890,8 @@
         .reset-all {
           flex-direction: column;
           gap: 5px;
+          margin-bottom: 20px;
+          padding-bottom: 20px;
         }
 
         .reset-all-btn {
@@ -810,8 +913,8 @@
 
       @media (max-width: 480px) {
         .court {
-          max-width: 200px;
-          height: 440px;
+          max-width: 140px;
+          height: 308px;
         }
 
         h1 {
@@ -825,6 +928,19 @@
         .match-history-sidebar {
           max-height: 120px;
           font-size: 0.75em;
+        }
+
+        .court-wrapper {
+          max-height: none;
+        }
+
+        .counter-section {
+          margin-bottom: 15px;
+        }
+
+        .reset-all {
+          margin-bottom: 30px;
+          padding-bottom: 30px;
         }
       }
     </style>
