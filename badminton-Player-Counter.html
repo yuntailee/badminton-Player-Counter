@@ -1,0 +1,1538 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>羽毛球場計數器</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Microsoft JhengHei", Arial, sans-serif;
+        min-height: 100vh;
+        max-height: 100vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+      }
+
+      .container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        padding: 15px;
+        max-width: 1200px;
+        width: 100%;
+        height: calc(100vh - 20px);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .header-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        position: relative;
+        min-height: 36px;
+      }
+
+      h1 {
+        text-align: center;
+        color: #333;
+        font-size: 1.3em;
+        flex: 1;
+      }
+
+      .view-players-btn {
+        background: #667eea;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 6px;
+        font-size: 0.9em;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 6px;
+      }
+
+      .view-players-btn:hover {
+        background: #5568d3;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+
+      .players-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        min-width: 200px;
+        max-width: 300px;
+        max-height: 400px;
+        overflow-y: auto;
+        z-index: 1000;
+        margin-top: 5px;
+        display: none;
+        border: 2px solid #ddd;
+      }
+
+      .players-menu.show {
+        display: block;
+      }
+
+      .players-menu-header {
+        padding: 12px;
+        border-bottom: 2px solid #eee;
+        font-weight: bold;
+        color: #333;
+        background: #f5f5f5;
+        border-radius: 10px 10px 0 0;
+      }
+
+      .players-menu-list {
+        padding: 8px;
+      }
+
+      .player-menu-item {
+        padding: 10px 12px;
+        cursor: pointer;
+        border-radius: 6px;
+        margin-bottom: 4px;
+        transition: all 0.3s ease;
+        color: #333;
+        border: 1px solid transparent;
+      }
+
+      .player-menu-item:hover {
+        background: #f0f0f0;
+        border-color: #667eea;
+        transform: translateX(5px);
+      }
+
+      .player-menu-item:last-child {
+        margin-bottom: 0;
+      }
+
+      .player-input-section {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 8px;
+        padding: 8px;
+        background: #f5f5f5;
+        border-radius: 8px;
+        flex-shrink: 0;
+        align-items: center;
+      }
+
+      .player-input {
+        flex: 1;
+        padding: 8px 12px;
+        border: 2px solid #ddd;
+        border-radius: 6px;
+        font-size: 0.9em;
+      }
+
+      .add-player-btn {
+        background: #4ba26e;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 6px;
+        font-size: 0.9em;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .add-player-btn:hover {
+        background: #3d8a5a;
+      }
+
+      .court-wrapper {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 8px;
+        align-items: flex-start;
+        justify-content: flex-start;
+        position: relative;
+        width: 100%;
+      }
+
+      .match-history-sidebar {
+        position: absolute;
+        left: 0;
+        top: 0;
+        background: #f5f5f5;
+        border-radius: 10px;
+        padding: 15px;
+        width: 280px;
+        max-height: 500px;
+        overflow-y: auto;
+        font-size: 0.9em;
+        border: 2px solid #ddd;
+        z-index: 10;
+      }
+
+      .match-history-sidebar h3 {
+        margin-bottom: 12px;
+        color: #333;
+        font-size: 1.1em;
+        text-align: center;
+        border-bottom: 2px solid #ddd;
+        padding-bottom: 8px;
+      }
+
+      .court-container {
+        display: flex;
+        justify-content: center;
+        background: #ffffff;
+        padding: 8px;
+        border: 2px solid black;
+        border-radius: 10px;
+        flex: 1;
+        position: relative;
+        margin-left: 290px;
+      }
+
+      .court {
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        grid-template-rows: repeat(22, 1fr);
+        background: #4ba26e;
+        border: 3px solid #4ba26e;
+        width: 200px;
+        height: 440px;
+        margin: 0 auto;
+        padding: 2px;
+        position: relative;
+      }
+
+      .player-tag {
+        position: absolute;
+        background: #ff6b6b;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85em;
+        font-weight: bold;
+        cursor: move;
+        user-select: none;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        z-index: 100;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
+        white-space: nowrap;
+      }
+
+      .player-tag:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      }
+
+      .player-tag.dragging {
+        opacity: 0.8;
+        z-index: 200;
+        transform: scale(1.15);
+      }
+
+      .player-tag.in-court {
+        background: #4ba26e;
+        border: 2px solid white;
+      }
+
+      .player-tag.in-court-top {
+        background: #ff9800;
+      }
+
+      .player-tag.in-court-bottom {
+        background: #2196f3;
+      }
+
+      .court-cell {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .boundary-top {
+        grid-column: 1 / -1;
+        grid-row: 3;
+        border-top: 3px solid white;
+      }
+
+      .boundary-top-0 {
+        grid-column: 1 / -1;
+        grid-row: 1;
+        border-top: 3px solid white;
+      }
+
+      .boundary-bottom {
+        grid-column: 1 / -1;
+        grid-row: -1;
+        border-bottom: 3px solid white;
+      }
+
+      .boundary-left {
+        grid-column: 1;
+        grid-row: 1 / -1;
+        border-left: 3px solid white;
+      }
+
+      .boundary-right {
+        grid-column: -1;
+        grid-row: 1 / -1;
+        border-right: 3px solid white;
+      }
+
+      .center-line {
+        grid-column: 1 / -1;
+        grid-row: 11;
+        border-bottom: 2px dashed white;
+        background: transparent;
+        z-index: 10;
+      }
+
+      .short-service-line.top {
+        grid-column: 1 / -1;
+        grid-row: 9;
+        border-top: 2px solid white;
+      }
+
+      .short-service-line.bottom {
+        grid-column: 1 / -1;
+        grid-row: 14;
+        border-bottom: 2px solid white;
+      }
+
+      .long-service-line.top {
+        grid-column: 1 / -1;
+        border-top: 2px solid white;
+      }
+
+      .long-service-line.bottom {
+        grid-column: 1 / -1;
+        grid-row: 21;
+        border-top: 2px solid white;
+      }
+
+      .singles-line-left {
+        grid-column: 2;
+        grid-row: 1 / -1;
+        border-left: 2px solid white;
+      }
+
+      .singles-line-right {
+        grid-column: 9;
+        grid-row: 1 / -1;
+        border-right: 2px solid white;
+      }
+
+      .center-service-line.top {
+        grid-column: 6;
+        grid-row: 1 / 9;
+        border-left: 2px solid white;
+      }
+
+      .center-service-line.bottom {
+        grid-column: 6;
+        grid-row: 15 / 25;
+        border-left: 2px solid white;
+      }
+
+      .counter-section {
+        display: flex;
+        justify-content: space-around;
+        gap: 10px;
+        flex-wrap: wrap;
+        flex: 1;
+        align-items: center;
+        position: relative;
+      }
+
+      .counter-box {
+        background: linear-gradient(135deg, #80d3ff 0%, #4b81a2 100%);
+        border-radius: 10px;
+        padding: 12px;
+        min-width: 150px;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        transition:
+          transform 0.3s ease,
+          background 0.6s ease;
+        flex: 1;
+        max-width: 300px;
+        position: relative;
+      }
+
+      .counter-box.left {
+        background: linear-gradient(135deg, #eebf78 0%, #f57c00 100%);
+      }
+
+      .counter-box.right {
+        background: linear-gradient(135deg, #80d3ff 0%, #4b81a2 100%);
+      }
+
+      .counter-box:hover {
+        transform: translateY(-5px);
+      }
+
+      .counter-label {
+        color: white;
+        font-size: 0.9em;
+        font-weight: bold;
+        margin-bottom: 8px;
+      }
+
+      .counter-players {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.75em;
+        margin-bottom: 5px;
+        min-height: 20px;
+      }
+
+      .player-name-tag {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.3);
+        padding: 2px 8px;
+        border-radius: 10px;
+        margin: 2px;
+      }
+
+      .counter-box.left .player-name-tag,
+      .counter-box.right .player-name-tag {
+        background: #ff6b6b;
+        border: 2px solid #ff6b6b;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .counter-box.left .player-name-link,
+      .counter-box.right .player-name-link {
+        color: #ffffff;
+        text-decoration: none;
+      }
+
+      .counter-box.left .player-name-link:hover,
+      .counter-box.right .player-name-link:hover {
+        color: #333333;
+      }
+
+      .counter-value {
+        color: white;
+        font-size: 2em;
+        font-weight: bold;
+        margin-bottom: 10px;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 5px;
+        transition: background 0.3s ease;
+      }
+
+      .counter-value:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .counter-value.editing {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .score-input {
+        background: rgba(255, 255, 255, 0.3);
+        border: 2px solid white;
+        color: white;
+        font-size: 2em;
+        font-weight: bold;
+        text-align: center;
+        width: 80px;
+        border-radius: 5px;
+      }
+
+      .match-history {
+        display: none;
+      }
+
+      .match-record {
+        padding: 12px;
+        border-bottom: 1px solid #ddd;
+        position: relative;
+        background: white;
+        border-radius: 5px;
+        margin-bottom: 8px;
+      }
+
+      .player-name-link {
+        color: #2196f3;
+        cursor: pointer;
+        text-decoration: underline;
+        transition: color 0.3s ease;
+      }
+
+      .player-name-link:hover {
+        color: #1976d2;
+      }
+
+      .match-record:last-child {
+        border-bottom: none;
+      }
+
+      .match-number {
+        font-weight: bold;
+        color: #ff9800;
+        margin-bottom: 8px;
+        font-size: 1em;
+      }
+
+      .delete-match-btn {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: #ff6b6b;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+      }
+
+      .delete-match-btn:hover {
+        background: #ff5252;
+        transform: scale(1.1);
+      }
+
+      .player-stats-btn {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        padding: 4px 8px;
+        border-radius: 5px;
+        font-size: 0.7em;
+        cursor: pointer;
+        margin-left: 5px;
+      }
+
+      .player-stats-btn:hover {
+        background: rgba(255, 255, 255, 0.5);
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+      }
+
+      .modal-content {
+        background: white;
+        margin: 10% auto;
+        padding: 20px;
+        border-radius: 10px;
+        width: 80%;
+        max-width: 400px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .close {
+        color: #aaa;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .close:hover {
+        color: #000;
+      }
+
+      .stats-item {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .stats-item:last-child {
+        border-bottom: none;
+      }
+
+      .stats-label {
+        font-weight: bold;
+        color: #666;
+      }
+
+      .stats-value {
+        font-size: 1.2em;
+        color: #333;
+      }
+
+      .counter-buttons {
+        display: flex;
+        gap: 5px;
+        justify-content: center;
+      }
+
+      .btn {
+        background: white;
+        color: #667eea;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.85em;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 60px;
+      }
+
+      .btn:hover {
+        background: #f0f0f0;
+        transform: scale(1.05);
+      }
+
+      .btn:active {
+        transform: scale(0.95);
+      }
+
+      .btn-reset {
+        background: #ff6b6b;
+        color: white;
+      }
+
+      .btn-reset:hover {
+        background: #ff5252;
+      }
+
+      .reset-all {
+        text-align: center;
+        margin-top: 8px;
+        flex-shrink: 0;
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .reset-all-btn {
+        background: #ff6b6b;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 8px;
+        font-size: 0.9em;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .reset-all-btn:hover {
+        background: #ff5252;
+        transform: scale(1.05);
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 5px;
+          overflow-y: auto;
+          max-height: none;
+        }
+
+        .container {
+          padding: 10px;
+          min-height: calc(100vh - 10px);
+          height: auto;
+          overflow: visible;
+        }
+
+        h1 {
+          font-size: 1.1em;
+          margin-bottom: 5px;
+        }
+
+        .header-section {
+          flex-wrap: wrap;
+          gap: 5px;
+          margin-bottom: 5px;
+        }
+
+        .view-players-btn {
+          padding: 6px 12px;
+          font-size: 0.8em;
+          height: 32px;
+        }
+
+        .player-input-section {
+          flex-direction: column;
+          gap: 5px;
+          padding: 6px;
+        }
+
+        .player-input {
+          width: 100%;
+        }
+
+        .add-player-btn {
+          width: 100%;
+        }
+
+        .court-wrapper {
+          flex-direction: column;
+          gap: 5px;
+          margin-bottom: 5px;
+        }
+
+        .court-container {
+          margin-left: 0;
+          width: 100%;
+          padding: 5px;
+        }
+
+        .match-history-sidebar {
+          position: relative;
+          width: 100%;
+          max-width: 100%;
+          max-height: 150px;
+          left: auto;
+          top: auto;
+          padding: 10px;
+          font-size: 0.8em;
+        }
+
+        .match-history-sidebar h3 {
+          font-size: 0.9em;
+          margin-bottom: 8px;
+        }
+
+        .court {
+          width: 100%;
+          max-width: 250px;
+          height: 550px;
+          margin: 0 auto;
+        }
+
+        .counter-section {
+          flex-direction: column;
+          gap: 8px;
+          position: relative;
+        }
+
+        .swap-button {
+          position: relative;
+          left: auto;
+          top: auto;
+          transform: none;
+          margin: 5px auto;
+          width: 50px;
+          height: 50px;
+          font-size: 24px;
+        }
+
+        .swap-button:hover {
+          transform: scale(1.1);
+        }
+
+        .counter-box {
+          width: 100%;
+          max-width: 100%;
+          padding: 10px;
+        }
+
+        .counter-label {
+          font-size: 0.85em;
+        }
+
+        .counter-value {
+          font-size: 1.8em;
+        }
+
+        .counter-buttons {
+          flex-wrap: wrap;
+          gap: 5px;
+        }
+
+        .btn {
+          padding: 5px 10px;
+          font-size: 0.8em;
+          min-width: 50px;
+        }
+
+        .reset-all {
+          flex-direction: column;
+          gap: 5px;
+        }
+
+        .reset-all-btn {
+          width: 100%;
+          padding: 10px;
+        }
+
+        .players-menu {
+          width: 100%;
+          max-width: 100%;
+          right: 0;
+        }
+
+        .player-menu-item {
+          padding: 8px 10px;
+          font-size: 0.9em;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .court {
+          max-width: 200px;
+          height: 440px;
+        }
+
+        h1 {
+          font-size: 1em;
+        }
+
+        .counter-value {
+          font-size: 1.5em;
+        }
+
+        .match-history-sidebar {
+          max-height: 120px;
+          font-size: 0.75em;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header-section">
+        <h1>羽球比分計數器</h1>
+        <button class="view-players-btn" onclick="togglePlayersMenu()">
+          查看選手
+        </button>
+        <div class="players-menu" id="playersMenu">
+          <div class="players-menu-header">選手列表</div>
+          <div class="players-menu-list" id="playersMenuList"></div>
+        </div>
+      </div>
+
+      <div class="player-input-section">
+        <input
+          type="text"
+          class="player-input"
+          id="playerInput"
+          placeholder="輸入選手姓名..."
+          onkeypress="if(event.key === 'Enter') addPlayer()"
+        />
+        <button class="add-player-btn" onclick="addPlayer()">新增選手</button>
+      </div>
+
+      <div class="court-wrapper">
+        <div class="match-history-sidebar">
+          <h3>比賽記錄</h3>
+          <div id="matchHistoryList"></div>
+        </div>
+        <div class="court-container">
+          <div class="court">
+            <div class="boundary-top-0"></div>
+            <div class="boundary-top"></div>
+            <div class="boundary-bottom"></div>
+            <div class="boundary-left"></div>
+            <div class="boundary-right"></div>
+            <div class="center-line"></div>
+            <div class="net"></div>
+            <div class="short-service-line top"></div>
+            <div class="short-service-line bottom"></div>
+            <div class="long-service-line top"></div>
+            <div class="long-service-line bottom"></div>
+            <div class="singles-line-left"></div>
+            <div class="singles-line-right"></div>
+            <div class="center-service-line top"></div>
+            <div class="center-service-line bottom"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="counter-section">
+        <div class="counter-box left">
+          <div class="counter-label">上方得分</div>
+          <div class="counter-players" id="topPlayers"></div>
+          <div class="counter-value" id="leftScore" onclick="editScore('left')">
+            0
+          </div>
+          <div class="counter-buttons">
+            <button class="btn" onclick="changeScore('left', 1)">+1</button>
+            <button class="btn" onclick="changeScore('left', -1)">-1</button>
+            <button class="btn btn-reset" onclick="resetScore('left')">
+              重置
+            </button>
+          </div>
+        </div>
+
+        <div class="counter-box right">
+          <div class="counter-label">下方得分</div>
+          <div class="counter-players" id="bottomPlayers"></div>
+          <div
+            class="counter-value"
+            id="rightScore"
+            onclick="editScore('right')"
+          >
+            0
+          </div>
+          <div class="counter-buttons">
+            <button class="btn" onclick="changeScore('right', 1)">+1</button>
+            <button class="btn" onclick="changeScore('right', -1)">-1</button>
+            <button class="btn btn-reset" onclick="resetScore('right')">
+              重置
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="reset-all">
+        <button class="reset-all-btn" onclick="resetAll()">全部重置</button>
+        <button
+          class="reset-all-btn"
+          onclick="swapSides()"
+          style="background: #ff9800"
+        >
+          交換場地
+        </button>
+        <button
+          class="reset-all-btn"
+          onclick="endMatch()"
+          style="background: #4caf50"
+        >
+          比賽結束
+        </button>
+      </div>
+    </div>
+
+    <div id="playerStatsModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="modalPlayerName">選手統計</h2>
+          <span class="close" onclick="closeModal()">&times;</span>
+        </div>
+        <div id="modalStatsContent"></div>
+      </div>
+    </div>
+
+    <script>
+      let leftScore = 0;
+      let rightScore = 0;
+      let players = [];
+      let playerIdCounter = 0;
+      let draggedElement = null;
+      let offset = { x: 0, y: 0 };
+      let matchHistory = [];
+      let playerStats = {};
+
+      const courtContainer = document.querySelector(".court-container");
+      const court = document.querySelector(".court");
+
+      function addPlayer() {
+        const input = document.getElementById("playerInput");
+        const name = input.value.trim();
+        if (name === "") return;
+
+        const startX = 50;
+        const startY = 50;
+        const spacing = 60;
+        const tolerance = 5;
+        let foundEmptySlot = false;
+        let newY = startY;
+
+        for (let i = 0; i <= players.length; i++) {
+          const standardY = startY + i * spacing;
+          const isOccupied = players.some((player) => {
+            return Math.abs(player.y - standardY) <= tolerance;
+          });
+          if (!isOccupied) {
+            newY = standardY;
+            foundEmptySlot = true;
+            break;
+          }
+        }
+
+        if (!foundEmptySlot) {
+          newY = startY + players.length * spacing;
+        }
+
+        const player = {
+          id: playerIdCounter++,
+          name: name,
+          x: startX,
+          y: newY,
+        };
+
+        players.push(player);
+        createPlayerTag(player);
+        input.value = "";
+        updatePlayerDisplay();
+
+        const menu = document.getElementById("playersMenu");
+        if (menu.classList.contains("show")) {
+          updatePlayersMenu();
+        }
+      }
+
+      function createPlayerTag(player) {
+        const tag = document.createElement("div");
+        tag.className = "player-tag";
+        tag.id = `player-${player.id}`;
+        tag.textContent = player.name;
+        tag.style.left = player.x + "px";
+        tag.style.top = player.y + "px";
+        tag.addEventListener("mousedown", startDrag);
+        tag.addEventListener("touchstart", startDrag);
+        courtContainer.appendChild(tag);
+      }
+
+      function startDrag(e) {
+        e.preventDefault();
+        draggedElement = e.target;
+        draggedElement.classList.add("dragging");
+
+        const rect = draggedElement.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+        offset.x = clientX - rect.left;
+        offset.y = clientY - rect.top;
+
+        document.addEventListener("mousemove", drag);
+        document.addEventListener("mouseup", stopDrag);
+        document.addEventListener("touchmove", drag);
+        document.addEventListener("touchend", stopDrag);
+      }
+
+      function drag(e) {
+        if (!draggedElement) return;
+        e.preventDefault();
+
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        const containerRect = courtContainer.getBoundingClientRect();
+        const courtRect = court.getBoundingClientRect();
+
+        let x = clientX - containerRect.left - offset.x;
+        let y = clientY - containerRect.top - offset.y;
+        const tagRect = draggedElement.getBoundingClientRect();
+
+        x = Math.max(0, Math.min(x, containerRect.width - tagRect.width));
+        y = Math.max(0, Math.min(y, containerRect.height - tagRect.height));
+
+        draggedElement.style.left = x + "px";
+        draggedElement.style.top = y + "px";
+
+        const isInCourt =
+          clientX >= courtRect.left &&
+          clientX <= courtRect.right &&
+          clientY >= courtRect.top &&
+          clientY <= courtRect.bottom;
+
+        const courtCenterY = courtRect.top + courtRect.height / 2;
+        const isInTopHalf = clientY < courtCenterY;
+
+        draggedElement.classList.remove(
+          "in-court",
+          "in-court-top",
+          "in-court-bottom"
+        );
+
+        if (isInCourt) {
+          if (isInTopHalf) {
+            draggedElement.classList.add("in-court-top");
+          } else {
+            draggedElement.classList.add("in-court-bottom");
+          }
+        }
+
+        const playerId = parseInt(draggedElement.id.split("-")[1]);
+        const player = players.find((p) => p.id === playerId);
+
+        if (player) {
+          player.x = x;
+          player.y = y;
+          player.inCourt = isInCourt;
+          player.inTopHalf = isInTopHalf;
+        }
+
+        updatePlayerDisplay();
+      }
+
+      function stopDrag() {
+        if (draggedElement) {
+          draggedElement.classList.remove("dragging");
+          draggedElement = null;
+        }
+        document.removeEventListener("mousemove", drag);
+        document.removeEventListener("mouseup", stopDrag);
+        document.removeEventListener("touchmove", drag);
+        document.removeEventListener("touchend", stopDrag);
+      }
+
+      function updatePlayerDisplay() {
+        const topPlayersEl = document.getElementById("topPlayers");
+        const bottomPlayersEl = document.getElementById("bottomPlayers");
+        const topPlayers = players.filter((p) => p.inCourt && p.inTopHalf);
+        const bottomPlayers = players.filter((p) => p.inCourt && !p.inTopHalf);
+
+        topPlayersEl.innerHTML = topPlayers
+          .map(
+            (p) =>
+              `<span class="player-name-tag"><span class="player-name-link" onclick="showPlayerStats('${p.name}')">${p.name}</span></span>`
+          )
+          .join("");
+
+        bottomPlayersEl.innerHTML = bottomPlayers
+          .map(
+            (p) =>
+              `<span class="player-name-tag"><span class="player-name-link" onclick="showPlayerStats('${p.name}')">${p.name}</span></span>`
+          )
+          .join("");
+      }
+
+      function editScore(side) {
+        const scoreEl = document.getElementById(
+          side === "left" ? "leftScore" : "rightScore"
+        );
+        const currentScore = side === "left" ? leftScore : rightScore;
+
+        scoreEl.classList.add("editing");
+        const input = document.createElement("input");
+        input.type = "number";
+        input.className = "score-input";
+        input.value = currentScore;
+        input.min = 0;
+
+        scoreEl.innerHTML = "";
+        scoreEl.appendChild(input);
+        input.focus();
+        input.select();
+
+        const finishEdit = () => {
+          const newScore = parseInt(input.value) || 0;
+          if (side === "left") {
+            leftScore = Math.max(0, newScore);
+            scoreEl.textContent = leftScore;
+          } else {
+            rightScore = Math.max(0, newScore);
+            scoreEl.textContent = rightScore;
+          }
+          scoreEl.classList.remove("editing");
+        };
+
+        input.addEventListener("blur", finishEdit);
+        input.addEventListener("keypress", (e) => {
+          if (e.key === "Enter") {
+            finishEdit();
+          }
+        });
+      }
+
+      function changeScore(side, value) {
+        if (side === "left") {
+          leftScore = Math.max(0, leftScore + value);
+          document.getElementById("leftScore").textContent = leftScore;
+        } else {
+          rightScore = Math.max(0, rightScore + value);
+          document.getElementById("rightScore").textContent = rightScore;
+        }
+      }
+
+      function resetScore(side) {
+        if (side === "left") {
+          leftScore = 0;
+          document.getElementById("leftScore").textContent = 0;
+        } else {
+          rightScore = 0;
+          document.getElementById("rightScore").textContent = 0;
+        }
+      }
+
+      function swapSides() {
+        const tempScore = leftScore;
+        leftScore = rightScore;
+        rightScore = tempScore;
+
+        document.getElementById("leftScore").textContent = leftScore;
+        document.getElementById("rightScore").textContent = rightScore;
+
+        const containerRect = courtContainer.getBoundingClientRect();
+        const courtRect = court.getBoundingClientRect();
+        const courtCenterY = courtRect.top + courtRect.height / 2;
+        const playersInCourt = players.filter((p) => p.inCourt);
+
+        playersInCourt.forEach((player) => {
+          player.inTopHalf = !player.inTopHalf;
+          const playerTag = document.getElementById(`player-${player.id}`);
+
+          if (playerTag) {
+            const currentY = player.y;
+            const relativeToCourtCenter =
+              currentY - (courtCenterY - containerRect.top);
+            const newRelativeY = -relativeToCourtCenter;
+            const newY = courtCenterY - containerRect.top + newRelativeY;
+
+            player.y = newY;
+            playerTag.style.top = newY + "px";
+
+            playerTag.classList.remove("in-court-top", "in-court-bottom");
+            if (player.inTopHalf) {
+              playerTag.classList.add("in-court-top");
+            } else {
+              playerTag.classList.add("in-court-bottom");
+            }
+          }
+        });
+
+        updatePlayerDisplay();
+      }
+
+      function resetAll() {
+        leftScore = 0;
+        rightScore = 0;
+        document.getElementById("leftScore").textContent = 0;
+        document.getElementById("rightScore").textContent = 0;
+      }
+
+      function endMatch() {
+        if (leftScore < 21 && rightScore < 21) {
+          alert("比賽尚未結束，至少需要有一方達到 21 分才能結束比賽。");
+          return;
+        }
+
+        const topPlayers = players.filter((p) => p.inCourt && p.inTopHalf);
+        const bottomPlayers = players.filter((p) => p.inCourt && !p.inTopHalf);
+        const topNames = topPlayers.map((p) => p.name).join(" ");
+        const bottomNames = bottomPlayers.map((p) => p.name).join(" ");
+
+        const matchRecord = {
+          topPlayers: topNames || "未設定",
+          bottomPlayers: bottomNames || "未設定",
+          topScore: leftScore,
+          bottomScore: rightScore,
+          date: new Date().toLocaleString("zh-TW"),
+        };
+
+        matchHistory.push(matchRecord);
+        updateHistoryDisplay();
+
+        topPlayers.forEach((player) => {
+          if (!playerStats[player.name]) {
+            playerStats[player.name] = {
+              wins: 0,
+              losses: 0,
+              totalScore: 0,
+              totalOpponentScore: 0,
+            };
+          }
+          if (leftScore > rightScore) {
+            playerStats[player.name].wins++;
+          } else if (leftScore < rightScore) {
+            playerStats[player.name].losses++;
+          }
+          playerStats[player.name].totalScore += leftScore;
+          playerStats[player.name].totalOpponentScore += rightScore;
+        });
+
+        bottomPlayers.forEach((player) => {
+          if (!playerStats[player.name]) {
+            playerStats[player.name] = {
+              wins: 0,
+              losses: 0,
+              totalScore: 0,
+              totalOpponentScore: 0,
+            };
+          }
+          if (rightScore > leftScore) {
+            playerStats[player.name].wins++;
+          } else if (rightScore < leftScore) {
+            playerStats[player.name].losses++;
+          }
+          playerStats[player.name].totalScore += rightScore;
+          playerStats[player.name].totalOpponentScore += leftScore;
+        });
+
+        movePlayersOutOfCourt();
+        resetAll();
+      }
+
+      function movePlayersOutOfCourt() {
+        const courtRect = court.getBoundingClientRect();
+        const containerRect = courtContainer.getBoundingClientRect();
+        const playersInCourt = players.filter((p) => p.inCourt);
+
+        if (playersInCourt.length === 0) return;
+
+        const startX = courtRect.right - containerRect.left + 20;
+        const startY = containerRect.height / 2;
+        const tagHeight = 35;
+        const spacing = 10;
+
+        playersInCourt.forEach((player, index) => {
+          const tag = document.getElementById(`player-${player.id}`);
+          if (tag) {
+            const newX = startX;
+            const newY =
+              startY -
+              (playersInCourt.length * tagHeight) / 2 +
+              index * tagHeight;
+
+            player.x = newX;
+            player.y = newY;
+            player.inCourt = false;
+            player.inTopHalf = false;
+
+            tag.style.transition = "none";
+            tag.style.left = newX + "px";
+            tag.style.top = newY + "px";
+            tag.classList.remove("in-court", "in-court-top", "in-court-bottom");
+
+            setTimeout(() => {
+              tag.style.transition = "";
+            }, 0);
+          }
+        });
+
+        updatePlayerDisplay();
+      }
+
+      function updateHistoryDisplay() {
+        const historyEl = document.getElementById("matchHistoryList");
+        if (matchHistory.length === 0) {
+          historyEl.innerHTML =
+            "<div style='color: #999; text-align: center; padding: 10px;'>尚無比賽記錄</div>";
+          return;
+        }
+
+        historyEl.innerHTML = matchHistory
+          .slice()
+          .reverse()
+          .map((match, index) => {
+            const matchNumber = matchHistory.length - index;
+            const topPlayersHtml =
+              match.topPlayers
+                .split(" ")
+                .filter((name) => name && name !== "未設定")
+                .map(
+                  (name) =>
+                    `<span class="player-name-link" onclick="showPlayerStats('${name}')">${name}</span>`
+                )
+                .join(" ") || "未設定";
+            const bottomPlayersHtml =
+              match.bottomPlayers
+                .split(" ")
+                .filter((name) => name && name !== "未設定")
+                .map(
+                  (name) =>
+                    `<span class="player-name-link" onclick="showPlayerStats('${name}')">${name}</span>`
+                )
+                .join(" ") || "未設定";
+
+            return `<div class="match-record">
+                <button class="delete-match-btn" onclick="deleteMatch(${matchHistory.length - 1 - index})" title="刪除">×</button>
+                <div class="match-number">第 ${matchNumber} 場</div>
+                <div><strong>${topPlayersHtml}</strong> vs <strong>${bottomPlayersHtml}</strong></div>
+                <div>${match.topScore} 分 vs ${match.bottomScore} 分</div>
+                <div style="font-size: 0.7em; color: #999;">${match.date}</div>
+              </div>`;
+          })
+          .join("");
+      }
+
+      function deleteMatch(index) {
+        if (confirm("確定要刪除這場比賽記錄嗎？")) {
+          const match = matchHistory[index];
+          const topPlayers = match.topPlayers
+            .split(" ")
+            .filter((name) => name && name !== "未設定");
+          const bottomPlayers = match.bottomPlayers
+            .split(" ")
+            .filter((name) => name && name !== "未設定");
+
+          topPlayers.forEach((playerName) => {
+            if (playerStats[playerName]) {
+              if (match.topScore > match.bottomScore) {
+                playerStats[playerName].wins = Math.max(
+                  0,
+                  playerStats[playerName].wins - 1
+                );
+              } else if (match.topScore < match.bottomScore) {
+                playerStats[playerName].losses = Math.max(
+                  0,
+                  playerStats[playerName].losses - 1
+                );
+              }
+              playerStats[playerName].totalScore = Math.max(
+                0,
+                playerStats[playerName].totalScore - match.topScore
+              );
+              playerStats[playerName].totalOpponentScore = Math.max(
+                0,
+                playerStats[playerName].totalOpponentScore - match.bottomScore
+              );
+            }
+          });
+
+          bottomPlayers.forEach((playerName) => {
+            if (playerStats[playerName]) {
+              if (match.bottomScore > match.topScore) {
+                playerStats[playerName].wins = Math.max(
+                  0,
+                  playerStats[playerName].wins - 1
+                );
+              } else if (match.bottomScore < match.topScore) {
+                playerStats[playerName].losses = Math.max(
+                  0,
+                  playerStats[playerName].losses - 1
+                );
+              }
+              playerStats[playerName].totalScore = Math.max(
+                0,
+                playerStats[playerName].totalScore - match.bottomScore
+              );
+              playerStats[playerName].totalOpponentScore = Math.max(
+                0,
+                playerStats[playerName].totalOpponentScore - match.topScore
+              );
+            }
+          });
+
+          matchHistory.splice(index, 1);
+          updateHistoryDisplay();
+        }
+      }
+
+      function showPlayerStats(playerName) {
+        const modal = document.getElementById("playerStatsModal");
+        const modalName = document.getElementById("modalPlayerName");
+        const modalContent = document.getElementById("modalStatsContent");
+
+        modalName.textContent = playerName + " 的統計";
+
+        const stats = playerStats[playerName] || {
+          wins: 0,
+          losses: 0,
+          totalScore: 0,
+          totalOpponentScore: 0,
+        };
+
+        const totalGames = stats.wins + stats.losses;
+        const winRate =
+          totalGames > 0 ? ((stats.wins / totalGames) * 100).toFixed(1) : 0;
+
+        modalContent.innerHTML = `
+          <div class="stats-item">
+            <div class="stats-label">勝場數</div>
+            <div class="stats-value">${stats.wins} 場</div>
+          </div>
+          <div class="stats-item">
+            <div class="stats-label">敗場數</div>
+            <div class="stats-value">${stats.losses} 場</div>
+          </div>
+          <div class="stats-item">
+            <div class="stats-label">總場數</div>
+            <div class="stats-value">${totalGames} 場</div>
+          </div>
+          <div class="stats-item">
+            <div class="stats-label">勝利率</div>
+            <div class="stats-value">${winRate}%</div>
+          </div>
+          <div class="stats-item">
+            <div class="stats-label">總得分</div>
+            <div class="stats-value">${stats.totalScore} 分</div>
+          </div>
+          <div class="stats-item">
+            <div class="stats-label">總失分</div>
+            <div class="stats-value">${stats.totalOpponentScore} 分</div>
+          </div>
+        `;
+
+        modal.style.display = "block";
+      }
+
+      function closeModal() {
+        document.getElementById("playerStatsModal").style.display = "none";
+      }
+
+      function togglePlayersMenu() {
+        const menu = document.getElementById("playersMenu");
+        menu.classList.toggle("show");
+        if (menu.classList.contains("show")) {
+          updatePlayersMenu();
+        }
+      }
+
+      function updatePlayersMenu() {
+        const menuList = document.getElementById("playersMenuList");
+        const uniquePlayers = [...new Set(players.map((p) => p.name))];
+
+        if (uniquePlayers.length === 0) {
+          menuList.innerHTML =
+            "<div style='padding: 10px; text-align: center; color: #999;'>尚無選手</div>";
+          return;
+        }
+
+        menuList.innerHTML = uniquePlayers
+          .map(
+            (name) =>
+              `<div class="player-menu-item" onclick="showPlayerStats('${name}'); togglePlayersMenu();">
+                ${name}
+              </div>`
+          )
+          .join("");
+      }
+
+      window.onclick = function (event) {
+        const modal = document.getElementById("playerStatsModal");
+        if (event.target === modal) {
+          modal.style.display = "none";
+        }
+      };
+
+      window.addEventListener("click", function (event) {
+        const menu = document.getElementById("playersMenu");
+        const btn = document.querySelector(".view-players-btn");
+        if (
+          menu &&
+          !menu.contains(event.target) &&
+          !btn.contains(event.target)
+        ) {
+          menu.classList.remove("show");
+        }
+      });
+
+      window.addEventListener("load", () => {
+        players.forEach((player) => {
+          createPlayerTag(player);
+        });
+        updateHistoryDisplay();
+      });
+    </script>
+  </body>
+</html>
