@@ -29,10 +29,11 @@
         padding: 15px;
         max-width: 1200px;
         width: 100%;
-        height: calc(100vh - 20px);
+        min-height: calc(100vh - 20px);
+        height: auto;
         display: flex;
         flex-direction: column;
-        overflow: hidden;
+        overflow: visible;
         position: relative;
       }
 
@@ -173,6 +174,8 @@
         justify-content: flex-start;
         position: relative;
         width: 100%;
+        flex-shrink: 0;
+        max-height: 50vh;
       }
 
       .match-history-sidebar {
@@ -217,8 +220,8 @@
         grid-template-rows: repeat(22, 1fr);
         background: #4ba26e;
         border: 3px solid #4ba26e;
-        width: 200px;
-        height: 440px;
+        width: 180px;
+        height: 396px;
         margin: 0 auto;
         padding: 2px;
         position: relative;
@@ -360,9 +363,10 @@
         justify-content: space-around;
         gap: 10px;
         flex-wrap: wrap;
-        flex: 1;
+        flex-shrink: 0;
         align-items: center;
         position: relative;
+        min-height: 200px;
       }
 
       .counter-box {
